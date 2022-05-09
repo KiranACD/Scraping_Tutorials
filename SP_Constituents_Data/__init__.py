@@ -1,0 +1,1 @@
+from config import storage_path, path, ticker_urls_file_path, ticker_path, id

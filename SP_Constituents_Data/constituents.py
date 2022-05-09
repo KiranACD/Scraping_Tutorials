@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import os
 import json
 from config import storage_path, ticker_path, id
+import sys
+print(sys.path)
 
 class TickerScraper:
     def __init__(self, index):
@@ -86,7 +88,11 @@ class TickerScraper:
         file_path = os.path.join(storage_path, file_name)
         with open(file_path, 'w') as f:
             for ticker in tickers:
-                f.write(ticker)
-                f.write('\n')
+                f.writelines(' - '.join(ticker))
+                f.writelines('\n')
+
+if __name__ == '__main__':
+    sp_scraper = TickerScraper('s&p500')
+    sp_scraper.scrape_and_save()
 
 
