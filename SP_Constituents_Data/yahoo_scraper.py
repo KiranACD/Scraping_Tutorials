@@ -18,18 +18,26 @@ class YahooScraper:
     
     def make_soup(self):
         response = self.get_response()
+        if response is None:
+            return None
         soup = self.scraper.make_soup(response.text)
         return soup
     
     def get_rows(self):
         soup = self.make_soup()
+        if soup is None:
+            return None
         rows = soup.find_all('tr')
         return rows
     
     def get_data(self):
         rows = self.get_rows()
+        if not rows:
+            print('Did not get rows')
+            return
         name_values = {}
         name_values['datetime'] = datetime.datetime.now().replace(microsecond=0).strftime('%d-%m-%Y %H:%M:%S')
+        print('got rows')
         for row in rows:
             for j in range(len(row.contents)):
                 if j == 0:

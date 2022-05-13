@@ -1,6 +1,7 @@
 import os
 import csv
 import time
+import random
 from ticker_iterator import Tickers
 from static_scrape import StaticScrape
 from config import DATA_URL, ticker_storage_path
@@ -31,6 +32,10 @@ class ConstituentsData:
     def save(self):
         data_gen = self.get_data()
         for data in data_gen:
+            if not data:
+                print('Skipping...')
+                print('-------------------------------------------')
+                continue
             if not os.path.exists(self.file_path):
                 headers = list(data.keys())
                 with open(self.file_path, 'w', newline='\n') as f:
@@ -42,7 +47,8 @@ class ConstituentsData:
                 writer.writerow(values)
             print('done')
             print('-------------------------------------------')
-            time.sleep(15)
+
+            time.sleep(random.randint(1, 2))
 
     def run(self):
         while True:

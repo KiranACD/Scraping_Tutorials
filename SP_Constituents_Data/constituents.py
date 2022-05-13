@@ -1,81 +1,36 @@
-import requests
-from bs4 import BeautifulSoup
+from static_scrape import StaticScrape
 import os
-import json
-from config import storage_path, ticker_path, id
+from config import storage_path, id
 import sys
 print(sys.path)
 
 class TickerScraper:
     def __init__(self, index):
         self.index = index
-    
-    @property
-    def url(self):
-        try:
-            return self._url
-        except:
-            self.url_()
-            return self._url
-    
-    def url_(self):
-        with open(ticker_path) as file:
-            urls = json.load(file)
-            self._url = urls[self.index]
-
-    def get_response_(self):
-        try:
-            response = requests.get(self.url)
-        except Exception as e:
-            print(str(e))
-            print(f'Error while making get request for URL: {self.url}')
-            return None
-        
-        try:
-            assert(response.status_code == 200)
-        except:
-            print('Response status code not 200')
-            return None
-    
-        return response
-
-    @staticmethod
-    def make_soup(html_text):
-        try:
-            soup = BeautifulSoup(html_text, features='html.parser')
-            return soup
-        except Exception as e:
-            print(str(e))
-            print('Error while making soup')
-            return None
-    
-    @staticmethod
-    def find_table_by_id(soup):
-        try:
-            table = soup.find('table', {'id':id})
-            return table
-        except Exception as e:
-            print(str(e))
-            print(f'Error while finding table by id: {id}')
-            return None
+        self.scraper = StaticScrape(self.index)
 
     def get_tickers(self):
         if self.index == 's&p500':
             return self.sp500()
     
     def sp500(self):
-        response = self.get_response_()
+        response = self.scraper.get_response()
         if not response:
             return
-        soup = TickerScraper.make_soup(response.text)
-        const_table = TickerScraper.find_table_by_id(soup)
+        soup = self.scraper.make_soup(response.text)
+        const_table = self.scraper.find_table_by_id(soup, id)
         rows = const_table.find_all('tr')
         tickers = []
         for row in rows:
             data = row.find_all('td')
             ticker = []
             for i in range(len(data)):
-                ticker.append(data[i].text.strip())
+                item = data[i].text.strip()
+                if i == 0:
+                    if '.' in item:
+                        print(f'"." in {item}')
+                        item = item.replace(".", "-")
+                ticker.append(item)
                 if i == 1:
                     ticker = tuple(ticker)
                     tickers.append(ticker)
@@ -84,6 +39,9 @@ class TickerScraper:
 
     def scrape_and_save(self):
         tickers = self.get_tickers()
+        if not tickers:
+            print('No Tickers')
+            return
         file_name = f'{self.index}_tickers.txt'
         file_path = os.path.join(storage_path, file_name)
         with open(file_path, 'w') as f:
