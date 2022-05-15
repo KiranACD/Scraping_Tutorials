@@ -8,6 +8,7 @@ options = Options()
 driver = webdriver.Chrome('/usr/bin/chromedriver', options=options)
 driver.get(url)
 time.sleep(5)
+# xpath to the 'a' element.
 xpath = '//table[@class="W(100%) Pos(r) Tbl(f) Bdcl(c) BdB Bdc($seperatorColor)"]//tr[@class="dt-row Pos(r) Bgc($hoverBgColor):h BdB Bdbc($seperatorColor) H(44px) "]/td/a'
 
 # Will have to scroll down to get the links
